@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Bluetooth LED</string>
+    <string name="general_scan">Scan</string>
+    <string name="general_paired_devices">Paired devices:</string>
+    <string name="general_show_paired_devices">Show paired devices</string>
+    <string name="btn_turn_on">Turn On</string>
+    <string name="btn_turn_off">Turn Off</string>
 </resources>

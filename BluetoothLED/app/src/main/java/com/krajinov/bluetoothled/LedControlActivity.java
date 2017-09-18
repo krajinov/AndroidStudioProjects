@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import butterknife.OnClick;
 
 public class LedControlActivity extends AppCompatActivity {
 
+    public final String TAG = this.getClass().getSimpleName();
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     private String address = null;
@@ -30,12 +32,6 @@ public class LedControlActivity extends AppCompatActivity {
     private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
 
-    @BindView(R.id.btnOn)
-    Button btnOn;
-    @BindView(R.id.btnOff)
-    Button btnOff;
-    @BindView(R.id.btnDisconnect)
-    Button btnDisconnect;
     @BindView(R.id.seekBar)
     SeekBar seekBrightness;
     @BindView(R.id.txtLumn)
@@ -67,7 +63,7 @@ public class LedControlActivity extends AppCompatActivity {
                     }
                     catch (IOException e)
                     {
-
+                        Log.e(TAG, e.getMessage());
                     }
                 }
             }
@@ -98,7 +94,7 @@ public class LedControlActivity extends AppCompatActivity {
 
     private class ConnectBT extends AsyncTask<Void, Void, Void>  // UI thread
     {
-        private boolean ConnectSuccess = true; //if it's here, it's almost connected
+        private boolean connectionSuccess = true; //if it's here, it's almost connected
 
         @Override
         protected void onPreExecute() {
@@ -117,7 +113,7 @@ public class LedControlActivity extends AppCompatActivity {
                     btSocket.connect();//start connection
                 }
             } catch (IOException e) {
-                ConnectSuccess = false;//if the try failed, you can check the exception here
+                connectionSuccess = false;//if the try failed, you can check the exception here
             }
             return null;
         }
@@ -127,7 +123,7 @@ public class LedControlActivity extends AppCompatActivity {
         {
             super.onPostExecute(result);
 
-            if (!ConnectSuccess) {
+            if (!connectionSuccess) {
                 msg("Connection Failed. Is it a SPP Bluetooth? Try again.");
                 finish();
             } else {

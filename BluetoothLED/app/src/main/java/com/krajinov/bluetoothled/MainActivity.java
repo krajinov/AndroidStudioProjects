@@ -35,12 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private LocalBroadcastManager broadcastManager;
     private BroadcastReceiver mReceiver;
     private ArrayList<String> listOfDevices;
-
-//    @BindView(R.id.btnScan)
-//    Button mBtnScan;
-
-    @BindView(R.id.btnShwDev)
-    Button mBtnShwDew;
+    private ArrayAdapter<String> arrayAdapter;
 
     @BindView(R.id.listDev)
     ListView mListDev;
@@ -79,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
         }
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this,
+        arrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, listOfDevices);
         mListDev.setAdapter(arrayAdapter);
         mListDev.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -97,40 +92,44 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    @OnClick (R.id.btnScan)
-//    public void scanBTDevices() {
-//        broadcastManager = LocalBroadcastManager.getInstance(this);
-//        mBluetoothAdapter.startDiscovery();
-//        mReceiver = new BroadcastReceiver() {
-//            public void onReceive(Context context, Intent intent) {
-//                String action = intent.getAction();
-//
-//                //Finding devices
-//                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-//                    // Get the BluetoothDevice object from the Intent
-//                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                    String deviceItem = device.getName() + "\n" + device.getAddress();
-//                    if (listOfDevices == null) {
-//                        listOfDevices = new ArrayList<>();
-//                    }
-//                    for (String s : listOfDevices) {
-//                        if (s.equalsIgnoreCase(deviceItem)) {
-//                            return;
-//                        }
-//                    }
-//                    // Add the name and address to an array adapter to show in a ListView
-//                    listOfDevices.add(deviceItem);
-//                }
-//            }
-//        };
-//
-//        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//        broadcastManager.registerReceiver(mReceiver, filter);
-//    }
+    @OnClick(R.id.btnScan)
+    public void scanBTDevices() {
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        mBluetoothAdapter.startDiscovery();
+        mReceiver = new BroadcastReceiver() {
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+
+                //Finding devices
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    // Get the BluetoothDevice object from the Intent
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    String deviceItem = device.getName() + "\n" + device.getAddress();
+                    if (listOfDevices == null) {
+                        listOfDevices = new ArrayList<>();
+                    }
+                    for (String s : listOfDevices) {
+                        if (s.equalsIgnoreCase(deviceItem)) {
+                            return;
+                        }
+                    }
+                    // Add the name and address to an array adapter to show in a ListView
+                    listOfDevices.add(deviceItem);
+                    arrayAdapter.notifyDataSetChanged();
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        broadcastManager.registerReceiver(mReceiver, filter);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
         if (broadcastManager != null) {
             broadcastManager.unregisterReceiver(mReceiver);
         }
