@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.listDev)
     ListView mListDev;
+    @BindView(R.id.progress_holder)
+    LinearLayout pbHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,13 +98,18 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btnScan)
     public void scanBTDevices() {
         broadcastManager = LocalBroadcastManager.getInstance(this);
+        if (mBluetoothAdapter.isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
         mBluetoothAdapter.startDiscovery();
+        showLoading(true);
         mReceiver = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
 
                 //Finding devices
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    showLoading(false);
                     // Get the BluetoothDevice object from the Intent
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     String deviceItem = device.getName() + "\n" + device.getAddress();
@@ -147,5 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    private void showLoading(boolean loading) {
+        pbHolder.setVisibility(loading ? View.VISIBLE : View.GONE);
     }
 }
